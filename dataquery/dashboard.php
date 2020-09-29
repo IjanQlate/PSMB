@@ -11,36 +11,25 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
 class Dashboard{
 
     private $conn;
-    private $table_name = "crecord";
+    private $table_custb = "custb";
+    private $table_crecord = "crecord";
+    private $table_enq = "enq";
+    private $table_enqtwo = "enqtwo";
 
-    // object properties
-    public $id;
-    public $Nama;
-    public $invois_no;
-    public $email;
-    public $pNo;
-    public $Alamat;
-    public $Poskod;
-    public $Bandar;
-    public $Negeri;
-    public $InstallTeam;
-    public $installType;
-    public $installDate;
-    public $Remark;
 
     // constructor with $db as database connection
     public function __construct($db){
         $this->conn = $db;
     }
 
-    public function graph_dashboard(){
+    public function countData_Customer(){
 
         // select all query
         $query = "SELECT
             *
         FROM
-            " . $this->table_name ."
-        ORDER BY id ASC";
+            " . $this->table_custb ."
+        ";
 
         // prepare query statement
         $stmt = $this->conn->prepare($query);
@@ -52,14 +41,14 @@ class Dashboard{
 
     }
 
-    public function countData(){
+    public function countData_crecord(){
 
         // select all query
         $query = "SELECT
-            COUNT(*) AS total
+            *
         FROM
-            " . $this->table_name ."
-        WHERE installType = '" . $this->installType ."'";
+            " . $this->table_crecord ."
+        ";
 
         // prepare query statement
         $stmt = $this->conn->prepare($query);
@@ -70,6 +59,45 @@ class Dashboard{
         return $stmt;
 
     }
+
+    public function countData_enq(){
+
+        // select all query
+        $query = "SELECT
+            *
+        FROM
+            " . $this->table_enq ."
+        ";
+
+        // prepare query statement
+        $stmt = $this->conn->prepare($query);
+
+        // execute query
+        $stmt->execute();
+
+        return $stmt;
+
+    }
+
+    public function countData_enqtwo(){
+
+        // select all query
+        $query = "SELECT
+            *
+        FROM
+            " . $this->table_enqtwo ."
+        ";
+
+        // prepare query statement
+        $stmt = $this->conn->prepare($query);
+
+        // execute query
+        $stmt->execute();
+
+        return $stmt;
+
+    }
+
 
 }
 
@@ -80,51 +108,21 @@ $database = new Database();
 $db = $database->getConnection();
 
 $dashboard = new Dashboard($db);
-$stmt = $dashboard->graph_dashboard();
-$num = $stmt->rowCount();
 
-if($num>0){
+$stmt = $dashboard->countData_Customer();
+$numcustomer = $stmt->rowCount();
 
-    $i = 1;
-    $installType_array = array();
+$stmt_crecord = $dashboard->countData_crecord();
+$totaltroubleshoot = $stmt_crecord->rowCount();
 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-        extract($row);
-        array_push($installType_array, $installType);
-    }
+$stmt_enq = $dashboard->countData_enq();
+$enq_one = $stmt_enq->rowCount();
 
-    // print_r($installType_array);
-    // print_r(array_unique($installType_array));
-    // $unique_array = array_unique($installType_array);
+$stmt_enqtwo = $dashboard->countData_enqtwo();
+$enq_two = $stmt_enqtwo->rowCount();
 
-    $array = array_values( array_flip( array_flip( $installType_array ) ) );
-    for ($i=0; $i<sizeof($array); $i++){
-        $dashboard->installType = $array[$i];
-        $stmt = $dashboard->countData();
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-            extract($row);
-            $finaldata[] = "['$array[$i]',$total]";
-        }
-    }
+$totalinbox = $enq_one + $enq_two;
 
-    // echo join($finaldata, ',');
-    // echo json_encode($finaldata);
-    // print_r($array);
-
-
-
-
-}
-
-
-
-/*
-
-[4:59 pm, 24/09/2020] ~ Call Me Ijan ~: 1.Product Sales - crecord(installType)
--so kt graph tu boleh tgk berapa dah pemasangan for installation , cctv berapa , access door berapa , dll
-[4:59 pm, 24/09/2020] ~ Call Me Ijan ~: 2.Team Installation - crecord(InstallTeam)
--boleh tgk setiap team dah buat berapa pemasangan , so boleh tgk team mne yg bnyak buat pemasangan
-
-*/
+echo json_encode(array("newcustomer"=>$numcustomer, "troubleshoot"=>$totaltroubleshoot, "inbox"=>$totalinbox))
 
 ?>

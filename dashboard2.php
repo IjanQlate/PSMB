@@ -310,13 +310,13 @@ else
                     <i class="material-icons">content_copy</i>
                   </div>
                   <p class="card-category">New Customer </p>
-                  <h3 class="card-title">+5
-                    <small>News</small>
+                  <h3 class="card-title"><span id="newcustomer">0</span>
+                    <!-- <small>User</small> -->
                   </h3>
                 </div>
                 <div class="card-footer">
                   <div class="stats">
-                   <i class="material-icons">update</i> Just Updated
+                   <i class="material-icons">update</i> Auto Updated every 5 Sec
                     
                   </div>
                 </div>
@@ -329,11 +329,11 @@ else
                     <i class="material-icons">store</i>
                   </div>
                   <p class="card-category">Troubleshoot</p>
-                  <h3 class="card-title">RM 34,45</h3>
+                  <h3 class="card-title"><span id="totaltroubleshoot">0</span></h3>
                 </div>
                 <div class="card-footer">
                   <div class="stats">
-                    <i class="material-icons">date_range</i> Last 24 Hours
+                    <i class="material-icons">update</i> Auto Updated every 5 Sec
                   </div>
                 </div>
               </div>
@@ -345,11 +345,11 @@ else
                     <i class="material-icons">info_outline</i>
                   </div>
                   <p class="card-category">Inbox</p>
-                  <h3 class="card-title">75</h3>
+                  <h3 class="card-title"><span id="totalinbox">0</span></h3>
                 </div>
                 <div class="card-footer">
                   <div class="stats">
-                    <i class="material-icons">local_offer</i> Tracked from Github
+                    <i class="material-icons">update</i> Auto Updated every 5 Sec
                   </div>
                 </div>
               </div>
@@ -732,6 +732,8 @@ else
       </ul>
     </div>
   </div>
+
+
   <!--   Core JS Files   -->
     <script src="lib/jquery/jquery.min.js"></script>
   <script src="lib/bootstrap/js/bootstrap.min.js"></script>
@@ -949,74 +951,81 @@ else
 
   <?php
 
-  $servername = "localhost";
-  $username = "root";
-  $password = "";
-  $dbname = "dashboardg";
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "dashboardg";
 
-  // Create connection
-  $conn = mysqli_connect($servername, $username, $password, $dbname);
-  // Check connection
-  if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-  }
-
-  $sql = "SELECT * FROM crecord";
-  $result = mysqli_query($conn, $sql);
-
-  if (mysqli_num_rows($result) > 0) {
-    // output data of each row
-    $installType_array = array();
-    while($row = mysqli_fetch_assoc($result)) {
-      array_push($installType_array, $row['installType']);
+    // Create connection
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    // Check connection
+    if (!$conn) {
+      die("Connection failed: " . mysqli_connect_error());
     }
 
-    $array = array_values( array_flip( array_flip( $installType_array ) ) );
-    for ($i=0; $i<sizeof($array); $i++){
+    $sql = "SELECT * FROM crecord";
+    $result = mysqli_query($conn, $sql);
 
-      $sql = "SELECT COUNT(*) AS total FROM crecord WHERE installType = '".$array[$i]."'";
-      $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+      // output data of each row
+      $installType_array = array();
       while($row = mysqli_fetch_assoc($result)) {
-          $rowtotal = $row['total'];
-          $finaldata[] = "['$array[$i]',$rowtotal]";
+        array_push($installType_array, $row['installType']);
       }
 
-    }
-    ?>
-  Highcharts.chart('container', {
-    chart: {
-        type: 'pie',
-        options3d: {
-            enabled: true,
-            alpha: 45
-        },
-        backgroundColor: 'transparent',
-    },        
-    title: {
-        text: 'Product Sales',
-        style: {
-          color: 'white',
-          fontWeight: 'bold',
-          fontSize: '12px',
-          fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-        }
-    },
-    plotOptions: {
-        pie: {
-            innerSize: 100,
-            depth: 45
-        }
-    },
-    series: [{
-      name: 'Delivered amount',
-      data: [<?php echo join($finaldata, ',') ?>]
-    }]
-  });
-  <?php
-    } else {
-      echo "0 results";
-    }
+      $array = array_values( array_flip( array_flip( $installType_array ) ) );
+      for ($i=0; $i<sizeof($array); $i++){
 
+        $sql = "SELECT COUNT(*) AS total FROM crecord WHERE installType = '".$array[$i]."'";
+        $result = mysqli_query($conn, $sql);
+        while($row = mysqli_fetch_assoc($result)) {
+            $rowtotal = $row['total'];
+            $finaldata[] = "['$array[$i]',$rowtotal]";
+        }
+
+      }
+      ?>
+      Highcharts.chart('container', {
+        chart: {
+            type: 'pie',
+            options3d: {
+                enabled: true,
+                alpha: 45,
+                beta: 0
+            },
+            backgroundColor: 'transparent',
+        },
+        credits: {
+            enabled: false
+        },
+        title: {
+            text: 'Product Sales',
+            style: {
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '12px',
+              fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+            }
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                innerSize: 80,
+                depth: 35,
+                dataLabels: {
+                  enabled: true,
+                  format: '{point.name}'
+              }
+            }
+        },
+        series: [{
+          name: 'Delivered amount',
+          data: [<?php echo join($finaldata, ',') ?>]
+        }]
+      });
+    <?php
+    }
     mysqli_close($conn);
 
     ?>
@@ -1026,320 +1035,180 @@ else
       // Javascript method's body can be found in assets/js/demos.js
       md.initDashboardPageCharts();
 
-  // Create the chart
-  Highcharts.chart('container_two', {
-      chart: {
-          type: 'column',
-          backgroundColor: 'transparent',
-      },
-      title: {
-          text: 'Team Installation',
-          style: {
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '12px',
-            fontFamily: 'Trebuchet MS, Verdana, sans-serif'
-          }
-      },
-      subtitle: {
-          text: ''
-      },
-      accessibility: {
-          announceNewData: {
-              enabled: true
-          }
-      },
-      xAxis: {
-          type: 'category'
-      },
-      yAxis: {
-          title: {
-              text: 'Total percent market share'
-          }
+      $.ajax({
+        url: "dataquery/dashboard.php",
+        dataType: "json",
+        method: "POST",
+        success: function(data_response) {
 
-      },
-      legend: {
-          enabled: false
-      },
-      plotOptions: {
-          series: {
-              borderWidth: 0,
-              dataLabels: {
-                  enabled: true,
-                  format: '{point.y:.1f}%'
-              }
-          }
-      },
+          console.log(data_response.inbox);
+          $("#newcustomer").text(data_response.newcustomer);
+          $("#totaltroubleshoot").text(data_response.troubleshoot);
+          $("#totalinbox").text(data_response.inbox);
+        }
+      });
 
-      tooltip: {
-          headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-          pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
-      },
+      // Load 3 Kotak
+      setInterval(function(){ 
+          $.ajax({
+            url: "dataquery/dashboard.php",
+            dataType: "json",
+            method: "POST",
+            success: function(data_response) {
 
-      series: [
-          {
-              name: "Browsers",
-              colorByPoint: true,
-              data: [
-                  {
-                      name: "Chrome",
-                      y: 62.74,
-                      drilldown: "Chrome"
-                  },
-                  {
-                      name: "Firefox",
-                      y: 10.57,
-                      drilldown: "Firefox"
-                  },
-                  {
-                      name: "Internet Explorer",
-                      y: 7.23,
-                      drilldown: "Internet Explorer"
-                  },
-                  {
-                      name: "Safari",
-                      y: 5.58,
-                      drilldown: "Safari"
-                  },
-                  {
-                      name: "Edge",
-                      y: 4.02,
-                      drilldown: "Edge"
-                  },
-                  {
-                      name: "Opera",
-                      y: 1.92,
-                      drilldown: "Opera"
-                  },
-                  {
-                      name: "Other",
-                      y: 7.62,
-                      drilldown: null
-                  }
-              ]
+              console.log(data_response.inbox);
+              $("#newcustomer").text(data_response.newcustomer);
+              $("#totaltroubleshoot").text(data_response.troubleshoot);
+              $("#totalinbox").text(data_response.inbox);
+            }
+          }); 
+      }, 5000);
+
+
+      <?php
+
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "dashboardg";
+
+        // Create connection
+        $conn = mysqli_connect($servername, $username, $password, $dbname);
+        // Check connection
+        if (!$conn) {
+          die("Connection failed: " . mysqli_connect_error());
+        }
+
+        $sql = "SELECT DISTINCT(InstallTeam) FROM crecord";
+        $result = mysqli_query($conn, $sql);
+
+        $totalinstallteam = 0;
+        $array_teaminstall = array();
+        $array_installtype = array();
+        $array_teaminstall_new = array();
+
+        $installType_array = array();
+        while($row = mysqli_fetch_assoc($result)) {
+          extract($row);
+          $totalinstallteam++;
+          // $InstallTeam."<br />";
+          array_push($array_teaminstall, $InstallTeam);
+      
+          $sql_s = "SELECT COUNT(installType) AS total FROM crecord WHERE InstallTeam = '$InstallTeam'";
+          $result_s = mysqli_query($conn, $sql_s);
+          if (mysqli_num_rows($result_s) > 0) {
+            $row_s = mysqli_fetch_assoc($result_s);
+              // echo $row['total'];
+              $newtotal = intval($row_s['total']);
+              $array_team[] = array("name"=>$InstallTeam, "y"=>$newtotal, "drilldown"=>$InstallTeam);
+              $array_second[] = array("name"=>$InstallTeam, "id"=>$InstallTeam);
+              // array_push($array_installtype, $row['installType']);
           }
-      ],
-      drilldown: {
-          series: [
-              {
-                  name: "Chrome",
-                  id: "Chrome",
-                  data: [
-                      [
-                          "v65.0",
-                          0.1
-                      ],
-                      [
-                          "v64.0",
-                          1.3
-                      ],
-                      [
-                          "v63.0",
-                          53.02
-                      ],
-                      [
-                          "v62.0",
-                          1.4
-                      ],
-                      [
-                          "v61.0",
-                          0.88
-                      ],
-                      [
-                          "v60.0",
-                          0.56
-                      ],
-                      [
-                          "v59.0",
-                          0.45
-                      ],
-                      [
-                          "v58.0",
-                          0.49
-                      ],
-                      [
-                          "v57.0",
-                          0.32
-                      ],
-                      [
-                          "v56.0",
-                          0.29
-                      ],
-                      [
-                          "v55.0",
-                          0.79
-                      ],
-                      [
-                          "v54.0",
-                          0.18
-                      ],
-                      [
-                          "v51.0",
-                          0.13
-                      ],
-                      [
-                          "v49.0",
-                          2.16
-                      ],
-                      [
-                          "v48.0",
-                          0.13
-                      ],
-                      [
-                          "v47.0",
-                          0.11
-                      ],
-                      [
-                          "v43.0",
-                          0.17
-                      ],
-                      [
-                          "v29.0",
-                          0.26
-                      ]
-                  ]
-              },
-              {
-                  name: "Firefox",
-                  id: "Firefox",
-                  data: [
-                      [
-                          "v58.0",
-                          1.02
-                      ],
-                      [
-                          "v57.0",
-                          7.36
-                      ],
-                      [
-                          "v56.0",
-                          0.35
-                      ],
-                      [
-                          "v55.0",
-                          0.11
-                      ],
-                      [
-                          "v54.0",
-                          0.1
-                      ],
-                      [
-                          "v52.0",
-                          0.95
-                      ],
-                      [
-                          "v51.0",
-                          0.15
-                      ],
-                      [
-                          "v50.0",
-                          0.1
-                      ],
-                      [
-                          "v48.0",
-                          0.31
-                      ],
-                      [
-                          "v47.0",
-                          0.12
-                      ]
-                  ]
-              },
-              {
-                  name: "Internet Explorer",
-                  id: "Internet Explorer",
-                  data: [
-                      [
-                          "v11.0",
-                          6.2
-                      ],
-                      [
-                          "v10.0",
-                          0.29
-                      ],
-                      [
-                          "v9.0",
-                          0.27
-                      ],
-                      [
-                          "v8.0",
-                          0.47
-                      ]
-                  ]
-              },
-              {
-                  name: "Safari",
-                  id: "Safari",
-                  data: [
-                      [
-                          "v11.0",
-                          3.39
-                      ],
-                      [
-                          "v10.1",
-                          0.96
-                      ],
-                      [
-                          "v10.0",
-                          0.36
-                      ],
-                      [
-                          "v9.1",
-                          0.54
-                      ],
-                      [
-                          "v9.0",
-                          0.13
-                      ],
-                      [
-                          "v5.1",
-                          0.2
-                      ]
-                  ]
-              },
-              {
-                  name: "Edge",
-                  id: "Edge",
-                  data: [
-                      [
-                          "v16",
-                          2.6
-                      ],
-                      [
-                          "v15",
-                          0.92
-                      ],
-                      [
-                          "v14",
-                          0.4
-                      ],
-                      [
-                          "v13",
-                          0.1
-                      ]
-                  ]
-              },
-              {
-                  name: "Opera",
-                  id: "Opera",
-                  data: [
-                      [
-                          "v50.0",
-                          0.96
-                      ],
-                      [
-                          "v49.0",
-                          0.82
-                      ],
-                      [
-                          "v12.1",
-                          0.14
-                      ]
-                  ]
-              }
-          ]
-      }
-  });
+        }
+        $json_product =  json_encode($array_team);
+      
+        // print_r($json_product);
+      
+        for ($i=0; $i<sizeof($array_teaminstall); $i++){
+      
+          $sql_s = "SELECT DISTINCT(installType) FROM crecord WHERE InstallTeam = '$array_teaminstall[$i]'";
+          $result_s = mysqli_query($conn, $sql_s);
+      
+          if (mysqli_num_rows($result_s) > 0) {
+      
+            while($row_s = mysqli_fetch_assoc($result_s)) {
+            
+              $installtype = $row_s['installType'];
+              $sql_b = "SELECT COUNT(installType) as COUNTBARU FROM crecord WHERE InstallTeam = '$array_teaminstall[$i]' AND installType = '$installtype'";
+              $result_b = mysqli_query($conn, $sql_b);
+              $row_b = mysqli_fetch_assoc($result_b);
+      
+      
+              $rowbaru = intval($row_b['COUNTBARU']);
+              $installteamnew = $array_teaminstall[$i];
+              array_push($array_teaminstall_new, $installteamnew);
+      
+              $finaldata[$installteamnew][] = ["$installtype",$rowbaru];
+              //$abcd[] = array("name"=>$installteamnew, "id"=>$installteamnew, "data"=>$finaldata[$installteamnew]);
+      
+            }
+      
+          }
+      
+        }
+        
+         $array_unique_teaminstall = array_values(array_unique($array_teaminstall_new));
+        
+          for($i=0; $i<sizeof($array_unique_teaminstall); $i++){
+              
+              //echo $array_unique_teaminstall[$i];
+              //echo "<br />";
+              $abcd[] = array("name"=>$array_unique_teaminstall[$i], "id"=>$array_unique_teaminstall[$i], "data"=>$finaldata[$array_unique_teaminstall[$i]]);
+              
+          }
+          $datagraph = json_encode($abcd);
+      ?>
+      Highcharts.chart('container_two', {
+            chart: {
+                type: 'column',
+                backgroundColor: 'transparent',
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: 'Team Installation',
+                style: {
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '12px',
+                  fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            subtitle: {
+                text: ''
+            },
+            accessibility: {
+                announceNewData: {
+                    enabled: true
+                }
+            },
+            xAxis: {
+                type: 'category'
+            },
+            yAxis: {
+                title: {
+                    text: 'Total Install Team'
+                }
+
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y}'
+                    }
+                }
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> of total<br/>'
+            },
+            series: [
+                {
+                    name: "Install Team",
+                    colorByPoint: true,
+                    data: <?php echo $json_product; ?>
+                }
+            ],
+            drilldown: {
+                series: <?php echo $datagraph; ?>
+            }
+        });
 
 
     });

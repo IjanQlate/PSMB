@@ -66,9 +66,9 @@ if (mysqli_num_rows($result) > 0) {
         $row_b = mysqli_fetch_assoc($result_b);
 
         $rowbaru = $row_b['COUNTBARU'];
-        // $installteamnew = $array_teaminstall[$i];
-        // $abcd[] = array("name"=>$installteamnew, "id"=>$installteamnew);
-        $finaldata[] = "['$array_teaminstall[$i]',$rowbaru]";
+        $installteamnew = $array_teaminstall[$i];
+        $abcd[] = array("name"=>$installteamnew, "id"=>$installteamnew);
+        $finaldata[] = "['$installtype',$rowbaru]";
 
         // echo $array_teaminstall[$i] ."=>". $row_s['installType'];
         // echo "<br />";
@@ -80,9 +80,10 @@ if (mysqli_num_rows($result) > 0) {
 
     }
 
-    $abcd =  json_encode(array_values( array_unique( $array_second, SORT_REGULAR ) ));
+    //$abcd =  json_encode(array_values( array_unique( $array_second, SORT_REGULAR ) ));
     // print_r($finaldata);
-    var_dump($abcd);
+    echo json_encode($abcd, JSON_PRETTY_PRINT);
+    echo json_encode($finaldata, JSON_PRETTY_PRINT);
 
 
   }
